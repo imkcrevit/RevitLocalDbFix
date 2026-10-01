@@ -1,0 +1,8 @@
+Name:               SteelConnections2022
+Version:            12.0.4100.1
+Shared name:
+Owner:              DOMAIN\user
+Auto-create:        Yes
+State:              Stopped
+Last start time:    23/10/2018 20:39:51
+Instance pipe name:

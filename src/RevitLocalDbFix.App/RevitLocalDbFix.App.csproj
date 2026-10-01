@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>7.3</LangVersion>
+    <RootNamespace>RevitLocalDbFix.App</RootNamespace>
+    <AssemblyName>RevitLocalDbFix</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>0.1.0</Version>
+    <Prefer32Bit>false</Prefer32Bit>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RevitLocalDbFix.Core\RevitLocalDbFix.Core.csproj" />
+  </ItemGroup>
+
+</Project>

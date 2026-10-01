@@ -1,0 +1,37 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Light modern palette (user-approved): white cards on a soft gray canvas, blue accent. -->
+
+    <SolidColorBrush x:Key="WindowBgBrush" Color="#F3F4F6" />
+    <SolidColorBrush x:Key="CardBgBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="CardBorderBrush" Color="#E5E7EB" />
+    <SolidColorBrush x:Key="HoverBgBrush" Color="#F3F4F6" />
+
+    <SolidColorBrush x:Key="AccentBrush" Color="#2563EB" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#1D4ED8" />
+    <SolidColorBrush x:Key="AccentSubtleBrush" Color="#EFF6FF" />
+
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#111827" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#6B7280" />
+
+    <!-- Verdict colors (SPEC §6.2): Pass green / Warn yellow / Fail red / Skipped gray. -->
+    <SolidColorBrush x:Key="PassBrush" Color="#16A34A" />
+    <SolidColorBrush x:Key="WarnBrush" Color="#D97706" />
+    <SolidColorBrush x:Key="FailBrush" Color="#DC2626" />
+    <SolidColorBrush x:Key="SkipBrush" Color="#9CA3AF" />
+    <SolidColorBrush x:Key="NotRunBrush" Color="#9CA3AF" />
+
+    <SolidColorBrush x:Key="PassSubtleBrush" Color="#DCFCE7" />
+    <SolidColorBrush x:Key="WarnSubtleBrush" Color="#FEF3C7" />
+    <SolidColorBrush x:Key="FailSubtleBrush" Color="#FEE2E2" />
+
+    <!-- Terminal-style output pane: dark slate on light UI for strong contrast. -->
+    <SolidColorBrush x:Key="MonoBgBrush" Color="#1E293B" />
+    <SolidColorBrush x:Key="MonoFgBrush" Color="#E2E8F0" />
+    <SolidColorBrush x:Key="MonoLightBgBrush" Color="#F8FAFC" />
+    <SolidColorBrush x:Key="MonoLightFgBrush" Color="#0F172A" />
+
+    <FontFamily x:Key="MonoFont">Consolas</FontFamily>
+
+</ResourceDictionary>

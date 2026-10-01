@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <RootNamespace>RevitLocalDbFix.Core</RootNamespace>
+    <AssemblyName>RevitLocalDbFix.Core</AssemblyName>
+    <Version>0.1.0</Version>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- .NET Framework built-in assemblies only: client machines need nothing but .NET 4.8 (SPEC §2). -->
+    <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Runtime.Serialization" />
+  </ItemGroup>
+
+</Project>

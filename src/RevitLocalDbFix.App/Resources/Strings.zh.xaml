@@ -1,0 +1,96 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <system:String x:Key="Loc.Marker">zh</system:String>
+
+    <system:String x:Key="App.Title">RevitLocalDbFix — Revit LocalDB 修复工具</system:String>
+    <system:String x:Key="App.Standalone">独立运行的桌面工具 —— 不是 Revit 插件。执行修复前请先关闭 Revit。</system:String>
+
+    <system:String x:Key="Common.Yes">是</system:String>
+    <system:String x:Key="Common.No">否</system:String>
+
+    <system:String x:Key="Menu.File">文件(_F)</system:String>
+    <system:String x:Key="Menu.File.ExportReport">导出报告...</system:String>
+    <system:String x:Key="Menu.File.OpenBackups">打开备份目录</system:String>
+    <system:String x:Key="Menu.File.RestoreSteel">还原 SteelConnections...</system:String>
+    <system:String x:Key="Menu.File.Exit">退出</system:String>
+    <system:String x:Key="Menu.Language">Language / 语言</system:String>
+    <system:String x:Key="Menu.Help">帮助(_H)</system:String>
+    <system:String x:Key="Menu.Help.About">关于...</system:String>
+
+    <system:String x:Key="Header.NoSelection">尚未选择 Revit 版本 —— 请从第 0 步开始。</system:String>
+    <system:String x:Key="Header.AdminYes">管理员</system:String>
+    <system:String x:Key="Header.AdminNo">未提升权限</system:String>
+    <system:String x:Key="Header.Elevate">以管理员身份重新启动</system:String>
+    <system:String x:Key="Header.SelectionFmt">Revit {0}  ·  实例 {1}  ·  LocalDB {2}</system:String>
+
+    <system:String x:Key="Status.SessionLabel">会话: </system:String>
+    <system:String x:Key="Status.LogLabel">日志: </system:String>
+
+    <system:String x:Key="Nav.Step0">第 0 步 —— 选择 Revit 版本</system:String>
+    <system:String x:Key="Nav.Step1">第 1 步 —— 隔离试验(备份并摘除)</system:String>
+    <system:String x:Key="Nav.Step2">第 2 步 —— 逐步确认修复</system:String>
+    <system:String x:Key="Nav.Step2_0">2.0 磁盘扇区检查</system:String>
+    <system:String x:Key="Nav.Step2_1">2.1 实例列表</system:String>
+    <system:String x:Key="Nav.Step2_2">2.2 实例详情</system:String>
+    <system:String x:Key="Nav.Step2_3">2.3 启停测试</system:String>
+    <system:String x:Key="Nav.Step2_4">2.4 删除并重建实例</system:String>
+    <system:String x:Key="Nav.Step2_5">2.5 清洁重装</system:String>
+    <system:String x:Key="Nav.Step2_6">2.6 真连接验证</system:String>
+    <system:String x:Key="Nav.Step3">第 3 步 —— 还原 SteelConnections</system:String>
+    <system:String x:Key="Nav.Step4">第 4 步 —— 最终验证与报告</system:String>
+
+    <system:String x:Key="Step0.Title">第 0 步 —— 选择要修复的 Revit 版本</system:String>
+    <system:String x:Key="Step0.Intro">已安装的 Revit 版本从 Windows 注册表读取。本工具独立运行,不会向 Revit 安装任何插件。</system:String>
+    <system:String x:Key="Step0.ColYear">年份</system:String>
+    <system:String x:Key="Step0.ColProduct">产品</system:String>
+    <system:String x:Key="Step0.ColPath">安装路径</system:String>
+    <system:String x:Key="Step0.ColExeVersion">Revit.exe 版本</system:String>
+    <system:String x:Key="Step0.ColSteel">钢连接模块</system:String>
+    <system:String x:Key="Step0.SteelYes">已安装</system:String>
+    <system:String x:Key="Step0.SteelNo">未找到</system:String>
+    <system:String x:Key="Step0.SteelDisabled">已摘除(隔离中)</system:String>
+    <system:String x:Key="Step0.Refresh">刷新</system:String>
+    <system:String x:Key="Step0.Browse">手动定位 Revit.exe...</system:String>
+    <system:String x:Key="Step0.Use">使用此版本</system:String>
+    <system:String x:Key="Step0.NoneFound">未检测到任何 Revit 安装,可手动定位 Revit.exe。</system:String>
+    <system:String x:Key="Step0.SysInfoFmt">Windows {0}(内部版本 {1}){2}  ——  用户:{3}  ——  管理员:{4}</system:String>
+    <system:String x:Key="Step0.Win11Tag">,Windows 11</system:String>
+    <system:String x:Key="Step0.JournalNone">最近的 journal 中未发现 "SQLLocalDB instance is malfunctioning" 警告。</system:String>
+    <system:String x:Key="Step0.JournalHitsFmt">最近 journal 中有 {0} 个文件命中该警告。最新:{1}(第 {2} 行)。</system:String>
+    <system:String x:Key="Step0.ManualInvalid">选择的文件不是有效的 Revit.exe。</system:String>
+
+    <system:String x:Key="Placeholder.PendingFmt">此页面已搭好框架,将在里程碑 {0} 中实现。</system:String>
+
+    <system:String x:Key="StepPage.Command">将执行的命令:</system:String>
+    <system:String x:Key="StepPage.Raw">原始输出</system:String>
+    <system:String x:Key="StepPage.Expected">原文预期输出</system:String>
+    <system:String x:Key="StepPage.VerdictLabel">工具判定: </system:String>
+    <system:String x:Key="StepPage.Reference">依据: </system:String>
+
+    <system:String x:Key="Btn.Back">上一步</system:String>
+    <system:String x:Key="Btn.Execute">执行</system:String>
+    <system:String x:Key="Btn.Copy">复制输出</system:String>
+    <system:String x:Key="Btn.Skip">跳过此步</system:String>
+    <system:String x:Key="Btn.Continue">确认并继续</system:String>
+
+    <system:String x:Key="Verdict.NotRun">未执行</system:String>
+    <system:String x:Key="Verdict.Pass">通过</system:String>
+    <system:String x:Key="Verdict.Warn">警告</system:String>
+    <system:String x:Key="Verdict.Fail">失败</system:String>
+    <system:String x:Key="Verdict.Skipped">已跳过</system:String>
+
+    <system:String x:Key="About.Title">关于 RevitLocalDbFix</system:String>
+    <system:String x:Key="About.Text">RevitLocalDbFix
+
+独立运行的 Windows 工具,用于修复 Revit 钢结构连接(Steel Connections)所依赖的 Microsoft SQL Server Express LocalDB。
+它不是 Revit 插件:不会向 Revit 安装任何内容,完全独立运行。
+
+修复流程严格按照 Autodesk 官方支持文章逐步执行(见"帮助"菜单)。
+每次更改前都会自动备份,但请自行保留重要数据的备份。</system:String>
+
+    <system:String x:Key="Resume.Title">未完成的会话</system:String>
+    <system:String x:Key="Resume.Found">检测到未完成的修复会话,是否继续?</system:String>
+
+</ResourceDictionary>

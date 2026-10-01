@@ -1,0 +1,10 @@
+LogicalBytesPerSector :                                 512
+PhysicalBytesPerSectorForAtomicity :                    4096
+PhysicalBytesPerSectorForPerformance :                  4096
+FileSystemEffectivePhysicalBytesPerSectorForAtomicity : 4096
+Device Alignment :                                      Aligned (0x000)
+Partition alignment on device :                         Aligned (0x000)
+No Seek Penalty
+Trim Supported
+Not DAX capable
+Not Thinly-Provisioned
