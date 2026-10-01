@@ -60,11 +60,22 @@ RevitLocalDbFix repairs the Microsoft SQL Server Express LocalDB used by Revit S
 ## 项目结构 / Structure
 
 ```
-src/RevitLocalDbFix.Core/   后端类库(检测/修复逻辑,不引用任何 UI)
-src/RevitLocalDbFix.App/    WPF 前端(向导壳、浅色现代主题、中英双语)
-tests/                      单元测试(解析器/映射表/定位器,固定样例,不依赖真实环境)
-docs/                       SPEC 与实施笔记
+src/RevitLocalDbFix.Core/        后端类库(检测/修复逻辑,不引用任何 UI)
+src/RevitLocalDbFix.App/         WPF 前端(向导壳、浅色现代主题、中英双语)
+tests/                           单元测试(解析器/映射表/定位器,固定样例,不依赖真实环境)
+docs/                            SPEC 与实施笔记
+.claude/skills/
+  revit-localdb-repair/          AI 陪跑自助修复技能(见下)
 ```
+
+## 两种使用方式 / Two ways to get help
+
+| 方式 | 适合 | 说明 |
+|---|---|---|
+| **GUI 向导工具**(本仓库主体) | 希望点按钮完成修复的最终用户 | 独立 exe,逐步执行官方 SOP,每步展示命令/输出/判定 |
+| **AI 陪跑技能** `revit-localdb-repair` | **希望自己动手**、在终端里理解每一步的用户 | 克隆本仓库后在 [Claude Code](https://claude.com/claude-code) 中打开,说出症状(如"Revit 打开模型卡死"),AI 会按同一套官方 SOP 与安全规则陪你逐条命令诊断和修复:只读诊断优先、修复由轻到重、每个破坏性动作先备份并征得确认 |
+
+技能与 GUI 工具共享同一套版本映射表与真机实证数据(中文输出解析、2025+ 实例名规则、create 锁版本语法),见 `.claude/skills/revit-localdb-repair/SKILL.md`。
 
 ## 构建 / Build
 
