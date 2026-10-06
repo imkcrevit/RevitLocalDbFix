@@ -55,7 +55,8 @@ RevitLocalDbFix repairs the Microsoft SQL Server Express LocalDB used by Revit S
 | 2.4 删除重建 | 真机实测两次成功(SteelConnections2021 锁定 12.0;SteelConnections2024v15 锁定 15.0,且是在残留目录存在的情况下) |
 | 2.5 清洁重装 | 真机实测卸载 / 下载验签 / 重装子步:SQL 2014 与 SQL 2019 两个引擎各做过,退出码 0、无需重启,用户实例保留。改名 `_OLD` 子步(2.5.2–2.5.4)未执行 |
 | 端到端故障重现 | 卸载 15.0 引擎 → 打开 Revit 2024 → 钢连接 `DatabaseConnectionErrors.log` 记录 LocalDB 错误(journal 无官方警告)→ 重装引擎 + 补建丢失的实例 → 对照运行无新错误 |
-| 尚未覆盖 | 实例增加按钮的真机点击、Advance Steel 真机(本机未安装)、第 1 步隔离实操、扇区注册表写入、提权与重启续跑、英文系统、Windows 11、Revit 2021/2023 的 Revit 侧验证(本机许可受限) |
+| 增加实例按钮 | 真机删除 SteelConnections2025 → 工具页面显示"缺失" → 点击增加并确认 → 备份残留目录、锁定 15.0 补建成功 → **Revit 2025 启动时实际使用了补建的实例**,钢连接无连接错误 |
+| 尚未覆盖 | Advance Steel 真机(本机未安装)、第 1 步隔离实操、扇区注册表写入、提权与重启续跑、英文系统、Windows 11、Revit 2021/2023 的 Revit 侧验证(本机许可受限) |
 
 真机检验修正了几处规格/官方文章与现实的偏差:① 2014 版 SqlLocalDB.exe 在中文系统输出中文标签(原英文解析会把健康机器误判为需重装);② 2025+ 实例名实际**无** v15 后缀(仅 2024 为 `SteelConnections2024v15`,官方文章写的是"2024 起都带 v15");③ 引擎缺失时 journal 不一定有官方警告,证据在钢连接自己的 `DatabaseConnectionErrors.log`。全部实测证据与决策记录见 [docs/IMPLEMENTATION_NOTES.md](docs/IMPLEMENTATION_NOTES.md)。
 

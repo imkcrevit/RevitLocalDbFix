@@ -210,7 +210,6 @@ namespace RevitLocalDbFix.Core.Provisioning
 
             var create = client.Create(profile.InstanceName, profile.LocalDbMajorVersion);
             result.Commands.Add(create);
-            FileLogger.Log("Add instance: " + create.CommandLine + " -> exit " + create.ExitCode + " | " + create.CombinedOutput.Trim());
 
             string version;
             if (!SqlLocalDbOutputParser.TryParseCreatedVersion(create.CombinedOutput, profile.InstanceName, out version))

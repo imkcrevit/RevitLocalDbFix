@@ -183,11 +183,15 @@ started, or when the user created the instance under a wrong name.
    v15 rule). `MSSQLLocalDB` (2018–2020) is an automatic instance — never `create` it.
 2. Make sure the product is closed (`Revit.exe` / `acad.exe`).
 3. If `%LOCALAPPDATA%\Microsoft\Microsoft SQL Server Local DB\Instances\<name>` still exists,
-   zip it first (field-verified: `create` succeeds with that leftover folder present).
+   zip it first. Field-verified: `sqllocaldb delete` removes the registration and the
+   database files but leaves this folder with its error*.log / .xel files behind, and
+   `create` succeeds with that leftover folder present — no manual cleanup needed.
 4. `& $sql create "<name>" <major>` — version pinned. The article's own example
    (`sqllocaldb create SteelConnections2022`) omits it; do not copy that.
 5. Verify with D3–D5. Expected: `LocalDB instance "<name>" created with version 15.0.x`
-   (or the zh-CN `已使用版本 ... 创建 LocalDB 实例“<name>”。`).
+   (or the zh-CN `已使用版本 ... 创建 LocalDB 实例“<name>”。`). Then have the user start
+   the product: in the field test Revit 2025 started the re-added instance itself
+   (State: Running) and wrote no `DatabaseConnectionErrors.log` entries.
 6. LocalDB instances are per Windows user: create them as the user who runs Revit, not as
    an administrator account used for UAC elevation.
 

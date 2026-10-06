@@ -203,6 +203,9 @@ namespace RevitLocalDbFix.App.Pages
                 ? string.Format(Loc.T("Inst.DoneFmt"), result.InstanceName, result.CreatedVersion)
                 : string.Format(Loc.T("Inst.FailedFmt"), result.InstanceName, result.Error));
             AppendOutput(sb.ToString());
+            if (result.BackupZipPath != null) FileLogger.Log("Add instance " + result.InstanceName + ": leftover folder backed up to " + result.BackupZipPath);
+            foreach (var cmd in result.Commands)
+                FileLogger.Log("Add instance: " + cmd.CommandLine + " -> exit " + cmd.ExitCode + " | " + cmd.CombinedOutput.Trim());
             FileLogger.Log("Add instance " + result.InstanceName + ": success=" + result.Success + " " + (result.Error ?? result.CreatedVersion));
 
             await RefreshAsync();
