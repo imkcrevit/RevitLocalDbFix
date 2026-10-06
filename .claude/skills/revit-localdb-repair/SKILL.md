@@ -8,9 +8,10 @@ description: >
   user mentions: Revit hanging or crashing when opening/syncing/linking models, template
   loading stuck, IFC import failing, a black console window (SQLDUMPER.EXE) flashing at
   startup, "SQLLocalDB instance is malfunctioning" in a journal, steel connections errors,
-  sqllocaldb commands, LocalDB instance problems, or asks to check or repair the Revit /
-  Advance Steel steel connections database — including in Chinese: Revit 卡死 / 崩溃 /
-  钢结构连接 / 钢连接 / LocalDB 修复 / 实例损坏 / 数据库检查.
+  sqllocaldb commands, LocalDB instance problems, a missing SteelConnections<year> /
+  AdvanceSteel<year> instance, or asks to check, repair, add or create the Revit /
+  Advance Steel steel connections database instance — including in Chinese: Revit 卡死 /
+  崩溃 / 钢结构连接 / 钢连接 / LocalDB 修复 / 实例损坏 / 实例增加 / 新建实例 / 数据库检查.
 ---
 
 # Revit LocalDB Guided Repair
@@ -59,9 +60,23 @@ Ask (or detect) which Revit year is affected, then resolve the profile from this
 | 2024 | SQL 2019 Express | 15.0 | `SteelConnections2024v15` (note the suffix) | `C:\Program Files\Microsoft SQL Server\150\Tools\Binn\SqlLocalDB.exe` |
 | 2025+ | SQL 2019 Express | 15.0 | `SteelConnections<year>` (NO v15 suffix) | same 150 path |
 
+**Advance Steel** (per the "Investigating SQL Server LocalDB" article): 2018–2020 use
+`MSSQLLocalDB`; 2021+ use a dedicated `AdvanceSteel<year>` instance (no v15 suffix, e.g.
+`AdvanceSteel2024`); 2021–2023 on SQL 2014 (12.0), 2024+ on SQL 2019 (15.0). Advance Steel
+runs inside AutoCAD, so `acad.exe` must be closed before any repair. Same procedure
+otherwise.
+
+**Article vs. reality — instance names for Revit 2025+.** The article says "Starting with
+Revit 2024 --> SteelConnections202Xv15". Field verification on a real machine shows only
+2024 has the suffix; 2025, 2026 and 2027 are `SteelConnections<year>`. Users who follow the
+article literally end up creating `SteelConnections2025v15`, which Revit 2025 never uses —
+a common reason why "2024 got fixed but 2025 did not". Always check the real name with
+`sqllocaldb i`, and treat a `...v15` twin of a 2025+ instance as a mistake to report, not
+something to repair or delete.
+
 Known-good full versions: 12.0.4100.1 (SP1), 12.0.5000.0 (SP2), 12.0.6024.0 (SP3),
 15.0.2104.1, 15.0.4382.1 (CU). A different full version with the right major is a
-warning, not a failure. Advance Steel 2021+ uses `AdvanceSteel<year>` — same procedure.
+warning, not a failure.
 
 Detect installed Revit versions from the registry (works without admin):
 
@@ -83,7 +98,26 @@ Get-ChildItem "$env:LOCALAPPDATA\Autodesk\Revit\Autodesk Revit <year>\Journals\j
   Select-String -SimpleMatch 'SQLLocalDB instance is malfunctioning' -List
 ```
 
-Hits confirm the LocalDB diagnosis. No hits does not rule it out.
+Hits confirm the LocalDB diagnosis. No hits does not rule it out — and in one important
+failure mode the journal stays silent. Always also read the Steel Connections' own error
+log, which the DB extension writes at Revit startup (before any model is opened):
+
+```powershell
+Get-ChildItem "$env:ProgramData\Autodesk\Revit Steel Connections <year>\*\DatabaseConnectionErrors.log" |
+  ForEach-Object { $_.FullName; $_.LastWriteTime; Get-Content $_.FullName }
+```
+
+Field-verified (2026-10, engine uninstalled, Revit 2024): the journal had no warning while
+this log recorded `LocalDB 实例 API 方法调用中出现意外的错误` ("Unexpected error occurred
+inside a LocalDB instance API method call") and `指定的 LocalDB 版本在此计算机上不可用`
+("The specified LocalDB version is not available on this computer"). Entries newer than
+the user's last problem session are strong evidence; an unchanged timestamp after a
+repair is a good sign the repair worked.
+
+When reading a failed Revit session, separate LocalDB evidence from unrelated noise: a
+model-open error such as "包含错误的架构" / CArchiveException, or another add-in's
+exception (e.g. FormIt Conversion) after a failed open, is not LocalDB evidence by itself.
+Only attribute it to LocalDB if it disappears after the repair.
 
 ## Localized output — do not misdiagnose
 
@@ -105,7 +139,8 @@ listed, `SqlLocalDB.exe` and `...\1x0\LocalDB\Binn\sqlservr.exe` must exist. Mis
 engine → go straight to R2 (clean reinstall).
 
 **D2. Instance exists?** `& $sql i` — one instance name per line. Target missing →
-repair R1 (create branch). Present → continue.
+A1 (add the instance). Also scan the list for a wrongly named twin (`...v15` added to a
+2025+ name, or missing from `SteelConnections2024v15`) and mention it. Present → continue.
 
 **D3. Instance details.** `& $sql i "<InstanceName>"` — check `Version`:
 major ≠ required major → R1 (recreate with pinned version); unparseable garbage →
@@ -137,6 +172,27 @@ confirm with the user first, then reboot and re-check.
 
 ## Repair ladder (confirm each step; Revit must be closed)
 
+### A1 — Add a missing instance (lightest; nothing is deleted)
+
+Use when D1 shows the engine is installed but D2 shows the product's instance is not
+registered — typical after a new Revit / Advance Steel version is installed on a machine
+whose LocalDB was repaired earlier, after an engine reinstall during which the product was
+started, or when the user created the instance under a wrong name.
+
+1. Confirm the exact name and engine from the mapping table (not from the article's
+   v15 rule). `MSSQLLocalDB` (2018–2020) is an automatic instance — never `create` it.
+2. Make sure the product is closed (`Revit.exe` / `acad.exe`).
+3. If `%LOCALAPPDATA%\Microsoft\Microsoft SQL Server Local DB\Instances\<name>` still exists,
+   zip it first (field-verified: `create` succeeds with that leftover folder present).
+4. `& $sql create "<name>" <major>` — version pinned. The article's own example
+   (`sqllocaldb create SteelConnections2022`) omits it; do not copy that.
+5. Verify with D3–D5. Expected: `LocalDB instance "<name>" created with version 15.0.x`
+   (or the zh-CN `已使用版本 ... 创建 LocalDB 实例“<name>”。`).
+6. LocalDB instances are per Windows user: create them as the user who runs Revit, not as
+   an administrator account used for UAC elevation.
+
+The GUI tool has the same feature: sidebar "Tools — Check & add instances".
+
 ### R1 — Delete and recreate the instance (light; field-tested end to end)
 
 1. **Back up the instance directory first**:
@@ -158,10 +214,19 @@ This does NOT uninstall anything and does not touch the steel databases in
 Follow the Autodesk "Investigating SQL Server LocalDB installation" article, in order,
 confirming each sub-step:
 
+0. **Secure a verified installer BEFORE uninstalling anything** (do step 5 first). Check
+   who installed the engine: the uninstall entry's `InstallSource` may point at a Visual
+   Studio package folder (`...\Microsoft Visual Studio\Packages\sqllocaldb2019,...`), in
+   which case the engine is shared with Visual Studio and its `_package.json` lists the
+   exact msi URL, SHA256 and size — download that, verify hash + Microsoft signature, and
+   tell the user Visual Studio shares this engine. Make sure Revit, Visual Studio and any
+   `sqlservr.exe` under the target `1x0\LocalDB\Binn` are closed.
 1. **Uninstall** only the target engine: find the uninstall entry whose DisplayName
    matches `Microsoft SQL Server 2014 Express LocalDB` or `Microsoft SQL Server 2019
    LocalDB` (2019 has no "Express" in the name), then
    `msiexec /x {ProductCode} /qn /norestart /l*v <log>`. Exit 3010 = reboot needed.
+   (Field-verified: exit 0 in 8–15 s, no reboot, for both 2014 and 2019. User instance
+   folders are NOT removed by an engine uninstall.)
 2. **Clean `%temp%`** — skip locked files, that is expected.
 3. Rename `%LOCALAPPDATA%\Microsoft\Microsoft SQL Server Local DB` → `_OLD`.
    **Warn loudly**: this invalidates ALL of the user's LocalDB instances, including ones
@@ -173,7 +238,11 @@ confirming each sub-step:
    — SQL 2019: https://www.microsoft.com/en-us/download/details.aspx?id=101064 (run the
    SSEI bootstrapper → Download Media → LocalDB). Verify the file is signed by Microsoft.
 6. **Install**: `msiexec /i SqlLocalDB.msi IACCEPTSQLLOCALDBLICENSETERMS=YES /qn /norestart /l*v <log>`,
-   then re-run the whole diagnostic ladder from D1.
+   then re-run the whole diagnostic ladder from D1. Expect D2 to find the target
+   instance missing if Revit was started while the engine was broken: in the field test
+   Revit 2024 lost the `SteelConnections2024v15` registration that way (other years that
+   were not started kept theirs). Recreate it with R1 (pinned version) — back up the
+   leftover instance folder first.
 
 ### Isolation test (root-cause confirmation when diagnosis is ambiguous)
 

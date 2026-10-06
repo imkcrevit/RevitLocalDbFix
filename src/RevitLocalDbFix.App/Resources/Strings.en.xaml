@@ -93,4 +93,38 @@ Backups are created automatically before every change, but please keep your own 
     <system:String x:Key="Resume.Title">Unfinished session</system:String>
     <system:String x:Key="Resume.Found">An unfinished repair session was found. Do you want to continue it?</system:String>
 
+    <system:String x:Key="Nav.Instances">Tools — Check &amp; add instances</system:String>
+    <system:String x:Key="Inst.Title">Check and add SQL LocalDB instances</system:String>
+    <system:String x:Key="Inst.IntroFmt">For every Revit / Advance Steel version installed on this computer, the tool checks that its dedicated LocalDB instance exists on the required engine. Missing instances can be added with the version pinned. LocalDB instances belong to a Windows user: they will be created for {0}.</system:String>
+    <system:String x:Key="Inst.Reference">Reference: Investigating SQL Server LocalDB installation when working with Advance Steel / Revit</system:String>
+    <system:String x:Key="Inst.ColProduct">Product</system:String>
+    <system:String x:Key="Inst.ColInstance">Expected instance</system:String>
+    <system:String x:Key="Inst.ColEngine">Required engine</system:String>
+    <system:String x:Key="Inst.ColStatus">Status</system:String>
+    <system:String x:Key="Inst.ColVersion">Current version</system:String>
+    <system:String x:Key="Inst.ColNote">Note</system:String>
+    <system:String x:Key="Inst.Refresh">Re-check</system:String>
+    <system:String x:Key="Inst.Create">Add selected instance</system:String>
+    <system:String x:Key="Inst.Busy">Working…</system:String>
+    <system:String x:Key="Inst.NoProducts">No Revit or Advance Steel installation was detected.</system:String>
+    <system:String x:Key="Inst.SummaryFmt">{0} product(s) checked: {1} healthy, {2} missing, {3} need repair.</system:String>
+    <system:String x:Key="Inst.Status.Healthy">Healthy</system:String>
+    <system:String x:Key="Inst.Status.Missing">Missing — can be added</system:String>
+    <system:String x:Key="Inst.Status.WrongVersion">Wrong engine — use 2.4 recreate</system:String>
+    <system:String x:Key="Inst.Status.Unreadable">Unreadable — use 2.5 clean reinstall</system:String>
+    <system:String x:Key="Inst.Status.EngineMissing">Engine not installed — use 2.5 first</system:String>
+    <system:String x:Key="Inst.Status.AutomaticInstance">Automatic instance (created by LocalDB itself)</system:String>
+    <system:String x:Key="Inst.AlternateFmt">Found "{0}" — a likely mistaken name (the article's "2024+ → v15" rule does not apply to this version). The tool does not use or delete it.</system:String>
+    <system:String x:Key="Inst.ConfirmTitle">Add LocalDB instance</system:String>
+    <system:String x:Key="Inst.ConfirmFmt">Add the missing instance for {0}?
+
+Command (version pinned):
+{1}
+
+Windows user: {2}
+Any leftover folder of this instance is zip-backed-up first. Existing instances are never replaced.</system:String>
+    <system:String x:Key="Inst.DoneFmt">Instance "{0}" was added on version {1}.</system:String>
+    <system:String x:Key="Inst.FailedFmt">Instance "{0}" was not added: {1}</system:String>
+    <system:String x:Key="Inst.BackupFmt">Leftover folder backed up to: {0}</system:String>
+
 </ResourceDictionary>

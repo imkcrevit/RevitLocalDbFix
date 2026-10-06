@@ -59,6 +59,7 @@ namespace RevitLocalDbFix.App
             _navItems.Add(new NavItem("2.6", "Nav.Step2_6", true));
             _navItems.Add(new NavItem("3", "Nav.Step3", false));
             _navItems.Add(new NavItem("4", "Nav.Step4", false));
+            _navItems.Add(new NavItem("inst", "Nav.Instances", false));
             NavList.ItemsSource = _navItems;
         }
 
@@ -79,6 +80,10 @@ namespace RevitLocalDbFix.App
                 var step0 = new Step0VersionSelectPage();
                 step0.VersionChosen += OnVersionChosen;
                 page = step0;
+            }
+            else if (key == "inst")
+            {
+                page = new InstancesPage();
             }
             else
             {

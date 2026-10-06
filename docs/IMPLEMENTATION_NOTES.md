@@ -108,6 +108,65 @@
 4. msiexec 卸载/安装在本机均未要求重启(退出码 0 而非 3010);3010 路径(RunOnce 续跑)仍保留待其他机器验证。
 5. 非提权会话通过 `Start-Process -Verb RunAs` 单次 UAC 完成卸载+安装是可行的交互模式(对应 §4 提权设计)。
 
+## 2026-10-03/05 — 端到端故障重现:卸载引擎 → 打开 Revit → 检索日志 → 修复 → 对照(需求方授权)
+
+### 过程
+
+1. **12.0 引擎 + Revit 2021/2023(放弃)**:卸载 12.0 后,Revit 2021 和 2023 都卡在许可验证(`LicenseUpd(1) Adlsdk Error:(3) vendor:SERVICE`),没有走到加载钢连接,拿不到证据。按需求方指示改用 Revit 2024,12.0 引擎用已验签 msi 装回(退出码 0,15s),2021/2023 实例全链路通过。
+2. **15.0 引擎 + Revit 2024**:
+   - 准备:没有 Revit / VS / 15.0 引擎进程;4 个 15.0 实例先 zip 备份;**先拿到和已安装产品完全相同的安装包**(见下),核对 SHA256 和签名之后才允许卸载。
+   - 第 1 步:`msiexec /x {E5B3A478-C4C3-49E3-8384-A12D4B2008D4}` → 退出码 0,8s,无需重启。
+   - 第 2–3 步:打开 `rst_advanced_sample_project.rvt`。钢连接 DB 扩展正常加载;模型打开失败,提示"包含错误的架构"(CArchiveException code=7);随后 Revit 自行退出,退出码 0xC000041D,CER 生成了崩溃报告。**journal 里没有官方警告原文**。
+   - 第 4 步:用同一个 msi 重装 → 退出码 0,12s。
+   - 第 5 步:2025/2026/2027 实例完好;**SteelConnections2024v15 的实例登记消失**,按 SOP 走 2.1 Fail → 2.4:备份残留目录,`create "SteelConnections2024v15" 15.0` → 15.0.4382.1,启动/连接/停止通过。
+   - 对照:用同一个模型再开一次 Revit 2024 → 钢连接 DB 错误日志**无新增**,但"包含错误的架构"**依然出现**。
+
+### 结论(区分已证实与未证实)
+
+- **已证实:LocalDB 故障的真正证据在钢连接自己的日志里,不在 journal 里。**
+  `%ProgramData%\Autodesk\Revit Steel Connections <year>\<lang>\DatabaseConnectionErrors.log`,故障时写入(中文系统原文):
+  ```
+  [1][15:51:10] LocalDB 实例 API 方法调用中出现意外的错误。有关错误详细信息，请参阅 Windows 应用程序事件日志。
+  [2][15:51:10] 指定的 LocalDB 版本在此计算机上不可用。
+  ```
+  修复后的对照运行中,这个文件没有新增内容。→ **JournalScanner 只认官方警告原文,会漏掉这类故障;第 0 步检测必须加上对这个日志的扫描**(待实现)。
+- **已证实:钢连接 DB 扩展在 Revit 启动阶段连接 LocalDB**(15:51:10,比打开模型早约 30 秒),和打开哪个模型无关。
+- **已证实:引擎缺失时运行 Revit,会丢掉该年份的实例登记**。同一次卸载/重装,没有运行 Revit 的 2025–2027 登记完好;2024v15 的登记在 Revit 运行的同一秒消失,残留目录从约 4MB 缩到约 0.45MB。→ 引擎修好以后还必须回到 2.1,发现实例缺失就走 2.4 重建(SPEC "2.5 完成后回 2.1"的设计在这里得到验证)。具体是钢连接模块先删实例再重建失败,还是其他原因,属于推断,没有直接证据。
+- **未证实**:"包含错误的架构"和 LocalDB 无关(修好后依然出现),是这个样例文件和 Revit 2024.3 之间的问题,测试选错了样例模型。0xC000041D 崩溃发生在对话框被关闭、Revit 自行退出的过程中;对照运行时对话框一直等待点击,被脚本结束了,两次流程不同,**崩溃和 LocalDB 有没有关系无法判断**。
+- **新事实:15.0 引擎可能是 Visual Studio 装的**。本机安装来源是 `...\Microsoft Visual Studio\Packages\sqllocaldb2019,version=17.12.4.0,chip=x64\`,包目录里只剩 `_package.json`,msi 已被 VS 清理。清单里有 payload 的官方 URL、SHA256、大小和签名者,据此下载到了**和已安装产品完全相同**的 msi(ProductCode 一致、15.0.4382.1)。→ 卸载前的"安装包准备"应该优先查已安装产品的 InstallSource,以及 VS 的 `_package.json`。
+- 2.5.5 的 2019 下载(§13-3)多了一条可靠途径:VS 包清单里的 payload URL + SHA256。另外在 Revit Preview 安装包的 `3rdParty\x64\Sql\` 里找到 2019 RTM(15.0.2000.5)的 msi。
+
+## 2026-10-06 — 依据 ART_LOCALDB_INVESTIGATE 新增"检查与增加实例"功能
+
+### 文章内容的获取
+
+Autodesk 网站拦截了所有自动访问:WebFetch、带浏览器 UA 的 PowerShell 请求、knowledge.autodesk.com 旧地址(301 跳到同一页面)、Wayback 存档,全部返回 403 或被拒。最终由需求方提供网页截图(2026-10-06),以截图为准。另外,中文站 `autodesk.com.cn/.../CHS/...` 当时返回 HTTP 200,可以作为以后自动核对的备用来源。
+
+### 文章里与实现相关的要点(按截图整理,非原文转载)
+
+- `sqllocaldb i` 的示例列表:`AdvanceSteel2021`–`AdvanceSteel2024`、`MSSQLLocalDB`、`SteelConnections2021`–`SteelConnections2023`、`SteelConnections2024v15`。
+- 2018–2020 版的 Advance Steel 和 Revit 都用 `MSSQLLocalDB`;从 2021 版起两者都用专用实例;Advance Steel 的格式是 `AdvanceSteel202x`;Revit 2021–2023 是 `SteelConnections202X`,**"Starting with Revit 2024 --> SteelConnections202Xv15"**。
+- 合法版本:12.0.5000.0(SP2)、12.0.6024.0(SP3)、15.0.2104.1(2019);示例中还出现了 12.0.4100.1。
+- 输出格式不对,说明 LocalDB 没有正确安装 → 清洁重装。
+- 删除重建:`sqllocaldb delete [instance name]`,停止失败时用 `stop ... -k`,然后 `sqllocaldb create SteelConnections2022`(**没有版本号**)。文中"e.g. for Revit 2022 type sqllocaldb start SteelConnections2022"写在 delete 步骤下,是原文笔误。
+- 清洁重装的六步和规格 §5.2-2.5 一致;2019 的下载路径是 SSEI → Download Media → LocalDB(53 MB)。
+
+### 文章与实测的差异(实现以实测为准)
+
+| 项 | 文章 | 实测 / 实现 |
+|---|---|---|
+| Revit 2025+ 实例名 | `SteelConnections202Xv15` | `SteelConnections<year>`(只有 2024 带 v15) |
+| create 版本 | 不带版本号 | 必须锁定(§9-3);微软文档确认语法为 `create <name> <version>` |
+| Advance Steel 2024+ | `AdvanceSteel2024`(不带 v15) | 一致 |
+
+### 新功能:检查与增加实例
+
+- `ProductProfiles`:新增 `ProductKind`(Revit / AdvanceSteel),实现了 `ForAdvanceSteel`(此前是预留桩),每个 profile 带上修复时必须关闭的进程(Revit → `Revit`,Advance Steel → `acad`)。
+- `AdvanceSteel/AdvanceSteelInstallationLocator`:从卸载项 DisplayName(`Autodesk Advance Steel 20xx`)识别已安装年份。**[待实测]**:本机未装 Advance Steel,DisplayName 格式和 acad 进程名都还没有在真机上核实。
+- `Provisioning/InstanceProvisioner`:对每个已安装产品判定实例状态 Healthy / Missing / WrongVersion / Unreadable / EngineMissing / AutomaticInstance;**只对 Missing 的实例执行创建**(版本锁定、产品进程守卫、残留目录先 zip),已存在的实例绝不替换;检测"名字差一个 v15"的误建实例,只报告、不删除。`MSSQLLocalDB` 是自动实例,不提供创建。
+- App 侧边栏新增"工具 —— 检查与增加实例"页面:状态表、汇总、确认对话框(显示完整命令和当前 Windows 用户)、输出区,中英双语。
+- 测试:新增 20 个单元测试(共 62 个,全部通过)。真机只读检查:6 个 Revit 版本全部判为 Healthy;UI 自动化打开页面,表格 6 行、汇总"6 个正常"显示正确。**创建按钮本次没有在真机上点击**,创建路径依赖此前 2.4 实测中已验证的 `create "<name>" <major>`(两次成功,其中一次是在残留目录存在的情况下)。
+
 ### 里程碑进度
 
 - **M1(本次)**:Core 全部类骨架与可测逻辑(Config/Process/SqlLocalDb 解析器/Sector 解析/Revit 定位/隔离器/报告)+ 单元测试;App 向导壳(侧边导航、页头、状态栏、菜单)、第 0 步页、`StepPageLayout`、双语即时切换、浅色现代主题。

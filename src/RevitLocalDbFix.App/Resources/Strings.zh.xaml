@@ -93,4 +93,38 @@
     <system:String x:Key="Resume.Title">未完成的会话</system:String>
     <system:String x:Key="Resume.Found">检测到未完成的修复会话,是否继续?</system:String>
 
+    <system:String x:Key="Nav.Instances">工具 —— 检查与增加实例</system:String>
+    <system:String x:Key="Inst.Title">检查并增加 SQL LocalDB 实例</system:String>
+    <system:String x:Key="Inst.IntroFmt">工具会逐一检查本机已安装的 Revit / Advance Steel 版本:它专用的 LocalDB 实例是否存在,是否在所需的引擎版本上。缺失的实例可以按锁定版本补建。LocalDB 实例属于 Windows 用户,将为 {0} 创建。</system:String>
+    <system:String x:Key="Inst.Reference">依据:Investigating SQL Server LocalDB installation when working with Advance Steel / Revit</system:String>
+    <system:String x:Key="Inst.ColProduct">产品</system:String>
+    <system:String x:Key="Inst.ColInstance">应有实例</system:String>
+    <system:String x:Key="Inst.ColEngine">所需引擎</system:String>
+    <system:String x:Key="Inst.ColStatus">状态</system:String>
+    <system:String x:Key="Inst.ColVersion">当前版本</system:String>
+    <system:String x:Key="Inst.ColNote">说明</system:String>
+    <system:String x:Key="Inst.Refresh">重新检查</system:String>
+    <system:String x:Key="Inst.Create">增加选中的实例</system:String>
+    <system:String x:Key="Inst.Busy">正在执行…</system:String>
+    <system:String x:Key="Inst.NoProducts">未检测到 Revit 或 Advance Steel 安装。</system:String>
+    <system:String x:Key="Inst.SummaryFmt">共检查 {0} 个产品:{1} 个正常,{2} 个缺失,{3} 个需要修复。</system:String>
+    <system:String x:Key="Inst.Status.Healthy">正常</system:String>
+    <system:String x:Key="Inst.Status.Missing">缺失 —— 可以增加</system:String>
+    <system:String x:Key="Inst.Status.WrongVersion">引擎版本不符 —— 请用 2.4 重建</system:String>
+    <system:String x:Key="Inst.Status.Unreadable">无法读取 —— 请用 2.5 清洁重装</system:String>
+    <system:String x:Key="Inst.Status.EngineMissing">引擎未安装 —— 请先用 2.5</system:String>
+    <system:String x:Key="Inst.Status.AutomaticInstance">自动实例(由 LocalDB 自行创建)</system:String>
+    <system:String x:Key="Inst.AlternateFmt">发现"{0}"—— 很可能是建错了名字(文章里"2024 起带 v15"的规则不适用于这个版本)。工具不会使用,也不会删除它。</system:String>
+    <system:String x:Key="Inst.ConfirmTitle">增加 LocalDB 实例</system:String>
+    <system:String x:Key="Inst.ConfirmFmt">为 {0} 增加缺失的实例?
+
+将执行的命令(版本已锁定):
+{1}
+
+Windows 用户:{2}
+如果这个实例还有残留目录,会先 zip 备份。已存在的实例绝不会被替换。</system:String>
+    <system:String x:Key="Inst.DoneFmt">实例"{0}"已增加,版本 {1}。</system:String>
+    <system:String x:Key="Inst.FailedFmt">实例"{0}"没有增加:{1}</system:String>
+    <system:String x:Key="Inst.BackupFmt">残留目录已备份到:{0}</system:String>
+
 </ResourceDictionary>

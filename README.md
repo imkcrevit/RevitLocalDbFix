@@ -41,21 +41,23 @@ RevitLocalDbFix repairs the Microsoft SQL Server Express LocalDB used by Revit S
 
 ### 已实现 / Implemented
 
-- Core 后端类库全量:Revit 版本映射表、注册表定位、Journal 扫描、SqlLocalDB 客户端(固定路径调用)与**中/英文输出解析**、磁盘扇区检查、SteelConnections 隔离器(zip 备份/摘除/还原)、清洁重装六子步、Markdown+JSON 报告、会话状态持久化、UAC 提升辅助
+- Core 后端类库全量:Revit **与 Advance Steel** 版本映射表、注册表定位、Journal 扫描、SqlLocalDB 客户端(固定路径调用)与**中/英文输出解析**、磁盘扇区检查、SteelConnections 隔离器(zip 备份/摘除/还原)、清洁重装六子步、**实例检查与增加**、Markdown+JSON 报告、会话状态持久化、UAC 提升辅助
 - WPF 向导壳:侧边步骤导航(✓/✗ 状态图标)、管理员徽章、**中英双语即时切换**、浅色现代主题、第 0 步版本选择页(注册表枚举 + 系统信息 + journal 扫描 + 手动定位)
+- **工具页"检查与增加实例"**:列出本机每个 Revit / Advance Steel 版本应有的专用实例,判定"正常 / 缺失 / 引擎版本不符 / 无法读取 / 引擎未安装";缺失的实例可一键按锁定版本补建(先确认、先备份残留目录、绝不替换已有实例);能识别照文章"2024 起带 v15"误建的实例(如 `SteelConnections2025v15`),只报告不删除
 - 第 1 步与 2.x 步骤交互页为占位,按里程碑 M2–M4 推进
 
-### 测试程度 / Test coverage(截至 2026-10-01)
+### 测试程度 / Test coverage(截至 2026-10-06)
 
 | 层级 | 程度 |
 |---|---|
-| 单元测试 | **42 个全部通过**:sqllocaldb 输出解析(含真机捕获的中文样例)、fsutil 解析、版本映射表锁定、注册表定位(假数据)、报告生成 |
-| 真机只读检验 | Win10 19045 **中文系统**,Revit **2021/2023/2024/2025/2026/2027** 六版本:注册表定位(非默认路径)、Journal 扫描、LocalDB 安装检查、2.1 实例列表、2.2 实例详情 — **全部正确(健康机器读出全绿)** |
-| 2.4 删除重建(破坏性) | 真机**完整实测一次**(仅 SteelConnections2021,经授权):备份实例目录 → stop → delete → create 锁定 12.0 → 复测启停 → `SELECT @@VERSION` → 恢复原状态,**全程成功**,解析器对真实中文消息 100% 匹配 |
-| 2.5 清洁重装 | **从未执行**,仅代码骨架(msiexec 卸载/下载直链等待实测项见实施笔记) |
-| 尚未覆盖 | 第 1 步隔离实操、扇区注册表写入、提权与重启续跑、v15 实例连接验证、英文系统、Windows 11 |
+| 单元测试 | **62 个全部通过**:sqllocaldb 输出解析(含真机捕获的中文样例)、fsutil 解析、版本映射表锁定(含 Advance Steel)、注册表定位(假数据)、实例检查与增加(模拟 sqllocaldb)、报告生成 |
+| 真机只读检验 | Win10 19045 **中文系统**,Revit **2021/2023/2024/2025/2026/2027** 六版本:注册表定位(非默认路径)、Journal 扫描、LocalDB 安装检查、实例列表与详情、"检查与增加实例"页(UI 自动化打开,6 行全部"正常") — **全部正确** |
+| 2.4 删除重建 | 真机实测两次成功(SteelConnections2021 锁定 12.0;SteelConnections2024v15 锁定 15.0,且是在残留目录存在的情况下) |
+| 2.5 清洁重装 | 真机实测卸载 / 下载验签 / 重装子步:SQL 2014 与 SQL 2019 两个引擎各做过,退出码 0、无需重启,用户实例保留。改名 `_OLD` 子步(2.5.2–2.5.4)未执行 |
+| 端到端故障重现 | 卸载 15.0 引擎 → 打开 Revit 2024 → 钢连接 `DatabaseConnectionErrors.log` 记录 LocalDB 错误(journal 无官方警告)→ 重装引擎 + 补建丢失的实例 → 对照运行无新错误 |
+| 尚未覆盖 | 实例增加按钮的真机点击、Advance Steel 真机(本机未安装)、第 1 步隔离实操、扇区注册表写入、提权与重启续跑、英文系统、Windows 11、Revit 2021/2023 的 Revit 侧验证(本机许可受限) |
 
-真机检验修正了两处规格与现实的偏差:① 2014 版 SqlLocalDB.exe 在中文系统输出中文标签(原英文解析会把健康机器误判为需重装);② 2025+ 实例名实际**无** v15 后缀(仅 2024 为 `SteelConnections2024v15`)。全部实测证据与决策记录见 [docs/IMPLEMENTATION_NOTES.md](docs/IMPLEMENTATION_NOTES.md)。
+真机检验修正了几处规格/官方文章与现实的偏差:① 2014 版 SqlLocalDB.exe 在中文系统输出中文标签(原英文解析会把健康机器误判为需重装);② 2025+ 实例名实际**无** v15 后缀(仅 2024 为 `SteelConnections2024v15`,官方文章写的是"2024 起都带 v15");③ 引擎缺失时 journal 不一定有官方警告,证据在钢连接自己的 `DatabaseConnectionErrors.log`。全部实测证据与决策记录见 [docs/IMPLEMENTATION_NOTES.md](docs/IMPLEMENTATION_NOTES.md)。
 
 ## 项目结构 / Structure
 
